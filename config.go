@@ -2,6 +2,7 @@ package confuso
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -37,6 +38,9 @@ func readConfig(fileName string) (map[string]string, error) {
 			return nil, err
 		}
 		splitted := strings.Split(strings.Trim(line, " \n"), "=")
+		if len(splitted) != 2 {
+			return nil, errors.New("malformed line in config: " + line)
+		}
 		config[splitted[0]] = splitted[1]
 	}
 	return config, nil
