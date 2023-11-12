@@ -1,9 +1,19 @@
 # confuso
-A simple go project made just for fun
+A simple go project for reading configuration files
+
+## Features
+- Read your configuration from a file
+- Automatically resolve environment variables
+- Custom name for config fields
 
 ## How to use it
 
-1. Write your struct
+0. Add dependency
+```bash
+go get github.com/specialfish9/confuso
+```
+
+1. Write your custom config struct, for example:
 
 ```go
 type Config struct {
@@ -21,11 +31,12 @@ type Db struct {
 
 type Http struct {
 	Hostname string `confuso:"website_hostname"`
-    Port     int
+	Port     int
 }
+
 ```
 
-2. Write your config
+2. Write your matching config
 
 ```
 Db.Host=${DB_HOSTNAME}
@@ -38,17 +49,43 @@ Http.website_hostname=${HTTP_HOSTNAME}
 Http.Port=${HTTP_PORT}
 ```
 
-3. Load the config
+3. Load it
 ```go
-	var config = Config{}
-	err := goconf.LoadConf("myconf.whatev", &config)
+var config = Config{}
+err := confuso.LoadConf("myconf.whatev", &config)
 
-	if err != nil {
-		log.Fatal(err)
-	}
+if err != nil {
+	log.Fatal(err)
+}
 ```
 
 4. Enjoy!
 ```go
 fmt.Printf("My website is: %s!\n", config.Http.Port)
+```
+
+## Integrations
+
+### Validator
+
+You can integrate `confuso` with the [validator package](https://github.com/go-validator/validator).
+
+
+```go
+type UserConfig struct {
+	Username string `validate:"min=3,max=40,regexp=^[a-zA-Z]*$"`
+	Name string     `validate:"nonzero"`
+	Password string `validate:"min=8"`
+}
+
+var userConfig = UserConfig{}
+err := confuso.LoadConf("myconf.whatev", &userConfig)
+
+if err != nil {
+	log.Fatal(err)
+}
+
+if errs := validator.Validate(userConfig); errs != nil {
+	// values not valid, deal with errors here
+}
 ```
