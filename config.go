@@ -1,4 +1,4 @@
-package goconf
+package confuso
 
 import (
 	"bufio"

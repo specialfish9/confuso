@@ -1,4 +1,4 @@
-package goconf
+package confuso
 
 import (
 	"errors"
@@ -54,7 +54,7 @@ func setBool(field reflect.Value, envValue string) error {
 
 func mkNamespace(base string, field reflect.StructField) string {
 	name := ""
-	tag := field.Tag.Get("goconf")
+	tag := field.Tag.Get("confuso")
 	if tag != "" {
 		name = tag
 	} else {

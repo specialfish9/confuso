@@ -1,10 +1,13 @@
-package goconf
+package confuso
 
 import (
 	"errors"
 	"reflect"
 )
 
+// LoadConf read the configuration from a file called fileName, parse the
+// content and populate the fields of the struct out. It will return any
+// error it encounter.
 func LoadConf(fileName string, out interface{}) error {
 	config, err := readConfig(fileName)
 
