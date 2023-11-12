@@ -59,7 +59,7 @@ jobs:
 
   release:
     name: Release
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
