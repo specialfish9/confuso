@@ -37,7 +37,14 @@ func readConfig(fileName string) (map[string]string, error) {
 
 			return nil, err
 		}
-		splitted := strings.Split(strings.Trim(line, " \n"), "=")
+		line = strings.Trim(line, " \n")
+
+		// Skip empty lines and comments
+		if line == "" || line[0] == '#' {
+			continue
+		}
+
+		splitted := strings.Split(line, "=")
 		if len(splitted) != 2 {
 			return nil, errors.New("malformed line in config: " + line)
 		}
