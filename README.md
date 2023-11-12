@@ -39,12 +39,14 @@ type Http struct {
 2. Write your matching config
 
 ```
+# Database
 Db.Host=${DB_HOSTNAME}
 Db.Port=5432
 Db.Username=admin
 Db.Password=${DB_PASSWORD}
 Db.use_ssl=true
 
+# Http
 Http.website_hostname=${HTTP_HOSTNAME}
 Http.Port=${HTTP_PORT}
 ```
