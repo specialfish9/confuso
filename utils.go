@@ -26,8 +26,8 @@ func setEnvField(field reflect.Value, envName string) error {
 	return setField(field, envVar)
 }
 
-func setInt(field reflect.Value, envValue string) error {
-	conv, err := strconv.Atoi(envValue)
+func setInt(field reflect.Value, value string) error {
+	conv, err := strconv.Atoi(value)
 
 	if err != nil {
 		return err
@@ -37,17 +37,17 @@ func setInt(field reflect.Value, envValue string) error {
 	return nil
 }
 
-func setStr(field reflect.Value, envValue string) error {
-	field.SetString(envValue)
+func setStr(field reflect.Value, value string) error {
+	field.SetString(value)
 	return nil
 }
 
-func setBool(field reflect.Value, envValue string) error {
-	if envValue != "true" && envValue != "false" {
-		return errors.New(envValue + " is not a valid boolean!")
+func setBool(field reflect.Value, value string) error {
+	if value != "true" && value != "false" {
+		return errors.New(value + " is not a valid boolean!")
 	}
 
-	field.SetBool(envValue == "true")
+	field.SetBool(value == "true")
 
 	return nil
 }
