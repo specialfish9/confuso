@@ -1,69 +1,35 @@
 package confuso
 
 import (
-	"errors"
 	"fmt"
-	"os"
 	"reflect"
 	"regexp"
-	"strconv"
 )
 
-func setField(field reflect.Value, value string) error {
-	switch field.Kind() {
-	case reflect.Int:
-		return setInt(field, value)
-	case reflect.Bool:
-		return setBool(field, value)
-	case reflect.String:
-		return setStr(field, value)
-	}
-	return errors.New("Unsupported struct field type: " + field.Kind().String())
-}
+func setField(fieldName string, field reflect.Value, value any) error {
+	val := reflect.ValueOf(value)
 
-func setEnvField(field reflect.Value, envName string) error {
-	envVar := os.Getenv(envName)
-	return setField(field, envVar)
-}
-
-func setInt(field reflect.Value, value string) error {
-	conv, err := strconv.Atoi(value)
-
-	if err != nil {
-		return err
+	if !val.Type().AssignableTo(field.Type()) {
+		return fmt.Errorf("cannot assign value '%v' to field %s", value, fieldName)
 	}
 
-	field.SetInt(int64(conv))
+	field.Set(val)
 	return nil
 }
 
-func setStr(field reflect.Value, value string) error {
-	field.SetString(value)
+func setOptionalField(fieldName string, optField reflect.Value, value any) error {
+	valueField := optField.FieldByName("Value")
+	okField := optField.FieldByName("Ok")
+
+	val := reflect.ValueOf(value)
+
+	if !val.Type().AssignableTo(valueField.Type()) {
+		return fmt.Errorf("cannot assign value '%v' to optional field %s", value, fieldName)
+	}
+
+	valueField.Set(val)
+	okField.SetBool(true)
 	return nil
-}
-
-func setBool(field reflect.Value, value string) error {
-	if value != "true" && value != "false" {
-		return errors.New(value + " is not a valid boolean!")
-	}
-
-	field.SetBool(value == "true")
-
-	return nil
-}
-
-func mkNamespace(base string, field reflect.StructField) string {
-	name := ""
-	tag := field.Tag.Get("confuso")
-	if tag != "" {
-		name = tag
-	} else {
-		name = field.Name
-	}
-	if base == "" {
-		return name
-	}
-	return fmt.Sprintf("%s.%s", base, name)
 }
 
 func matchEnvVar(s string) string {
