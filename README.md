@@ -21,15 +21,16 @@ type Config struct {
 }
 
 type DB struct {
-    Host     string  `confuso:"hostname"`
-    Port     int     `confuso:"port"`
-    Username string  `confuso:"username"`
-    Password string  `confuso:"password"`
+    Host     string  					`confuso:"hostname"`
+    Port     int     					`confuso:"port"`
+    Username string  					`confuso:"username"`
+    Password string  					`confuso:"password"`
+	SSL 	 confuso.Optional[bool]		`confuso:"ssl"`
 }
 
 type HTTP struct {
-	Hostname string `confuso:"website_hostname"`
-    Port     int    `confuso:"port"`
+	Hostname confuso.Optional[string] 	`confuso:"website_hostname"`
+    Port     int    					`confuso:"port"`
 }
 
 ```
