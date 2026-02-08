@@ -37,7 +37,7 @@ type HTTP struct {
 
 2. Write your matching config
 
-```
+```yaml
 # whatev.yaml
 db:
     hostname: localhost
