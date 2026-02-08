@@ -1,0 +1,8 @@
+this:
+  is:
+    a: 
+      string: "present"
+      bool: true
+      number: 1
+other:
+  object: here

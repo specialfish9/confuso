@@ -1,10 +1,9 @@
-# confuso
-A simple go project for reading configuration files
+# Confuso
+A simple Go project for reading configuration files.
 
 ## Features
-- Read your configuration from a file
-- Automatically resolve environment variables
-- Custom name for config fields
+- Read your configuration from a YAML file
+- Built-in `Optional[T]` type
 
 ## How to use it
 
@@ -17,21 +16,20 @@ go get github.com/specialfish9/confuso
 
 ```go
 type Config struct {
-	Db   Db
-	Http Http
+    Database   DB     `confuso:"db"`
+    Server     HTTP   `confuso:"http"`
 }
 
-type Db struct {
-	Host     string
-	Port     int
-	Username string
-	Password string
-	UseSsl   bool `confuso:"use_ssl"`
+type DB struct {
+    Host     string  `confuso:"hostname"`
+    Port     int     `confuso:"port"`
+    Username string  `confuso:"username"`
+    Password string  `confuso:"password"`
 }
 
-type Http struct {
+type HTTP struct {
 	Hostname string `confuso:"website_hostname"`
-	Port     int
+    Port     int    `confuso:"port"`
 }
 
 ```
@@ -39,23 +37,22 @@ type Http struct {
 2. Write your matching config
 
 ```
-# Database
-Db.Host=${DB_HOSTNAME}
-Db.Port=5432
-Db.Username=admin
-Db.Password=${DB_PASSWORD}
-Db.use_ssl=true
-
-# Http
-Http.website_hostname=${HTTP_HOSTNAME}
-Http.Port=${HTTP_PORT}
+# whatev.yaml
+db:
+    hostname: localhost
+    port: 5432
+    username: admin
+    password: secret
+http:
+    website_hostname: example.com
+    port: 8080
 ```
 
 3. Load it
 ```go
 var config = Config{}
-err := confuso.LoadConf("myconf.whatev", &config)
 
+err := confuso.Do("myconf.whatev", &config)
 if err != nil {
 	log.Fatal(err)
 }
@@ -63,7 +60,7 @@ if err != nil {
 
 4. Enjoy!
 ```go
-fmt.Printf("My website is: %s!\n", config.Http.Port)
+fmt.Printf("Server listening at: %d!\n", config.Server.Port)
 ```
 
 ## Integrations
@@ -75,14 +72,14 @@ You can integrate `confuso` with the [validator package](https://github.com/go-v
 
 ```go
 type UserConfig struct {
-	Username string `validate:"min=3,max=40,regexp=^[a-zA-Z]*$"`
-	Name string     `validate:"nonzero"`
-	Password string `validate:"min=8"`
+    Username string `confuso:"username" validate:"min=3,max=40,regexp=^[a-zA-Z]*$"`
+    Name string     `confuso:"name" validate:"nonzero"`
+    Password string `confuso:"password" validate:"min=8"`
 }
 
 var userConfig = UserConfig{}
-err := confuso.LoadConf("myconf.whatev", &userConfig)
 
+err := confuso.Do("whatev.yaml", &userConfig)
 if err != nil {
 	log.Fatal(err)
 }
