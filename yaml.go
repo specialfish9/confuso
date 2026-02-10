@@ -7,8 +7,16 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func readYAML(filePath string) (map[string]any, error) {
-	content, err := os.ReadFile(filePath)
+type YAMLInput struct {
+	filePath string
+}
+
+func NewYAMLInput(filePath string) Input {
+	return &YAMLInput{filePath: filePath}
+}
+
+func (y *YAMLInput) read() (map[string]any, error) {
+	content, err := os.ReadFile(y.filePath)
 	if err != nil {
 		return nil, fmt.Errorf("reading file: %w", err)
 	}
