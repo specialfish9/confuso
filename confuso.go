@@ -6,8 +6,13 @@ import (
 	"reflect"
 )
 
+type Input interface {
+	read() (map[string]any, error)
+}
+
 func Do(fileName string, out any) error {
-	config, err := readYAML(fileName)
+	input := NewYAMLInput(fileName)
+	config, err := input.read()
 	if err != nil {
 		return fmt.Errorf("confuso: %w", err)
 	}
