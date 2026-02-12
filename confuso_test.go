@@ -5,7 +5,8 @@ import "testing"
 const testConfig string = "./test-config/test-config.yaml"
 
 func Test_readYAML(t *testing.T) {
-	out, err := readYAML(testConfig)
+	input := NewYAMLInput(testConfig)
+	out, err := input.read()
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err.Error())
 	}
@@ -54,15 +55,15 @@ func Test_DoWithOptionals(t *testing.T) {
 	}
 
 	assert(t, out.This.Is.A.String.Ok, "expected string to be present")
-	assert_eq(t, out.This.Is.A.String.Value, "present")
+	assert_eq(t, out.This.Is.A.String.MustVal(), "present")
 	assert(t, !out.This.Is.A.OptString.Ok, "expected optString to be absent")
 
 	assert(t, out.This.Is.A.Bool.Ok, "expected bool to be present")
-	assert_eq(t, out.This.Is.A.Bool.Value, true)
+	assert_eq(t, out.This.Is.A.Bool.MustVal(), true)
 	assert(t, !out.This.Is.A.OptBool.Ok, "expected optBool to be absent")
 
 	assert(t, out.This.Is.A.Number.Ok, "expected number to be present")
-	assert_eq(t, out.This.Is.A.Number.Value, 1)
+	assert_eq(t, out.This.Is.A.Number.MustVal(), 1)
 	assert(t, !out.This.Is.A.OptNumber.Ok, "expected optNumber to be absent")
 }
 
