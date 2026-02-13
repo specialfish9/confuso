@@ -67,12 +67,12 @@ jobs:
           user_format_type: "json"
 
       - name: Create Release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.semantic_version.outputs.version_tag }}
-          release_name: Release ${{ steps.semantic_version.outputs.version_tag }}
+          name: Release ${{ steps.semantic_version.outputs.version_tag }}
           body: New Release
           draft: false
           prerelease: false
