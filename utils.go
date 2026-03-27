@@ -10,7 +10,7 @@ func setField(fieldName string, field reflect.Value, value any) error {
 	val := reflect.ValueOf(value)
 
 	if !val.Type().AssignableTo(field.Type()) {
-		return fmt.Errorf("cannot assign value '%v' to field %s", value, fieldName)
+		return fmt.Errorf("cannot assign value '%v' to field '%s'", value, fieldName)
 	}
 
 	field.Set(val)
@@ -24,7 +24,7 @@ func setOptionalField(fieldName string, optField reflect.Value, value any) error
 	val := reflect.ValueOf(value)
 
 	if !val.Type().AssignableTo(valueField.Type()) {
-		return fmt.Errorf("cannot assign value '%v' to optional field %s", value, fieldName)
+		return fmt.Errorf("cannot assign value '%v' to optional field '%s'", value, fieldName)
 	}
 
 	valueField.Set(val)

@@ -7,12 +7,11 @@ import (
 )
 
 type Input interface {
-	read() (map[string]any, error)
+	Read() (map[string]any, error)
 }
 
-func Do(fileName string, out any) error {
-	input := NewYAMLInput(fileName)
-	config, err := input.read()
+func Read(input Input, out any) error {
+	config, err := input.Read()
 	if err != nil {
 		return fmt.Errorf("confuso: %w", err)
 	}

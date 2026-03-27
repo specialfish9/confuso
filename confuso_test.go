@@ -1,12 +1,17 @@
-package confuso
+package confuso_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/specialfish9/confuso/v2"
+	"github.com/specialfish9/confuso/v2/input"
+)
 
 const testConfig string = "./test-config/test-config.yaml"
 
 func Test_readYAML(t *testing.T) {
-	input := NewYAMLInput(testConfig)
-	out, err := input.read()
+	input := input.YAML(testConfig)
+	out, err := input.Read()
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err.Error())
 	}
@@ -33,10 +38,10 @@ func Test_readYAML(t *testing.T) {
 	assert_eq(t, object, "here")
 }
 
-func Test_Do(t *testing.T) {
+func Test_Read(t *testing.T) {
 	out := Config{}
 
-	err := Do(testConfig, &out)
+	err := confuso.Read(input.YAML(testConfig), &out)
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err.Error())
 	}
@@ -49,7 +54,7 @@ func Test_Do(t *testing.T) {
 func Test_DoWithOptionals(t *testing.T) {
 	out := ConfigWithOptional{}
 
-	err := Do(testConfig, &out)
+	err := confuso.Read(input.YAML(testConfig), &out)
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err.Error())
 	}

@@ -1,9 +1,10 @@
 # Confuso
-A simple Go project for reading configuration files.
+A minimal Go library for reading configurations.
 
 ## Features
-- Read your configuration from a YAML file
-- Read your configuration from environment variables
+- Minimal and easy to use
+- Read your configuration from YAML, environment variables, or any
+  other custom source 
 - Built-in `Optional[T]` type
 
 ## How to use it
@@ -33,7 +34,6 @@ type HTTP struct {
 	Hostname confuso.Optional[string] 	`confuso:"website_hostname"`
     Port     int    					`confuso:"port"`
 }
-
 ```
 
 2. Write your matching config
@@ -54,7 +54,7 @@ http:
 ```go
 var config = Config{}
 
-err := confuso.Do("myconf.whatev", &config)
+err := confuso.Read(input.YAML("myconf.yaml"), &config)
 if err != nil {
 	log.Fatal(err)
 }
@@ -93,6 +93,40 @@ server.Listen(config.Port.Or(8080))
 im100PercentSureThisPortIsNotNill := config.Port.MustVal()
 ```
 
+## Custom sources
+You can implement your own custom source by implementing the `confuso.Source` interface.
+For example, if you want to read your configuration from a remote HTTP endpoint, you can do
+something like this:
+
+```go
+type RemoteInput struct {
+    URL url.URL
+}
+
+func Remote(u url.URL) confuso.Input {
+    return RemoteInput {
+        URL: u,
+    }
+}
+
+func (r* RemoteInput) Read() (map[string]any, error) {
+    resp, err := http.Get(r.u.String())
+	if err != nil {
+        return nil, err
+	}
+	defer resp.Body.Close()
+
+	var config map[string]any
+
+	err = json.NewDecoder(resp.Body).Decode(&config)
+	if err != nil {
+        return nil, err
+	}
+
+    return config, nil
+}
+```
+
 ## Integrations
 
 ### Validator
@@ -118,3 +152,6 @@ if errs := validator.Validate(userConfig); errs != nil {
 	// values not valid, deal with errors here
 }
 ```
+
+## Known issues
+- It should skip fields without the confuso tag, but it doesn't. This is a bug and will be fixed in the future.

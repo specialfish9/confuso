@@ -1,4 +1,6 @@
-package confuso
+package confuso_test
+
+import "github.com/specialfish9/confuso/v2"
 
 type Config struct {
 	This struct {
@@ -19,12 +21,12 @@ type ConfigWithOptional struct {
 	This struct {
 		Is struct {
 			A struct {
-				String    Optional[string] `confuso:"string"`
-				Bool      Optional[bool]   `confuso:"bool"`
-				Number    Optional[int]    `confuso:"number"`
-				OptString Optional[string] `confuso:"non_existent_string"`
-				OptBool   Optional[bool]   `confuso:"non_existent_bool"`
-				OptNumber Optional[int]    `confuso:"non_existent_number"`
+				String    confuso.Optional[string] `confuso:"string"`
+				Bool      confuso.Optional[bool]   `confuso:"bool"`
+				Number    confuso.Optional[int]    `confuso:"number"`
+				OptString confuso.Optional[string] `confuso:"non_existent_string"`
+				OptBool   confuso.Optional[bool]   `confuso:"non_existent_bool"`
+				OptNumber confuso.Optional[int]    `confuso:"non_existent_number"`
 			} `confuso:"a"`
 		} `confuso:"is"`
 	} `confuso:"this"`
