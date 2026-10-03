@@ -6,11 +6,11 @@ import (
 	"regexp"
 )
 
-func setField(fieldName string, field reflect.Value, value any) error {
+func setField(field reflect.Value, value any) error {
 	val := reflect.ValueOf(value)
 
 	if !val.Type().AssignableTo(field.Type()) {
-		return fmt.Errorf("cannot assign value '%v' to field %s", value, fieldName)
+		return fmt.Errorf("cannot assign value '%v' (of type %T)", value, value)
 	}
 
 	field.Set(val)

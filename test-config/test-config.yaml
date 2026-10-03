@@ -6,3 +6,12 @@ this:
       number: 1
 other:
   object: here
+  array:
+    - 1
+    - 2
+    - 3
+  array_of_objects:
+    - string: "object1"
+      int: 10
+    - string: "object2"
+      int: 20

@@ -31,6 +31,23 @@ func Test_readYAML(t *testing.T) {
 	object, ok := other.(map[string]any)["object"]
 	assert(t, ok)
 	assert_eq(t, object, "here")
+
+	array, ok := other.(map[string]any)["array"]
+	assert(t, ok)
+	assert_eq(t, array.([]any)[0], 1)
+	assert_eq(t, array.([]any)[1], 2)
+	assert_eq(t, array.([]any)[2], 3)
+
+	arrayOfObjects, ok := other.(map[string]any)["array_of_objects"]
+	assert(t, ok)
+
+	firstObject := arrayOfObjects.([]any)[0].(map[string]any)
+	assert_eq(t, firstObject["string"], "object1")
+	assert_eq(t, firstObject["int"], 10)
+
+	secondObject := arrayOfObjects.([]any)[1].(map[string]any)
+	assert_eq(t, secondObject["string"], "object2")
+	assert_eq(t, secondObject["int"], 20)
 }
 
 func Test_Do(t *testing.T) {
@@ -65,6 +82,25 @@ func Test_DoWithOptionals(t *testing.T) {
 	assert(t, out.This.Is.A.Number.Ok, "expected number to be present")
 	assert_eq(t, out.This.Is.A.Number.MustVal(), 1)
 	assert(t, !out.This.Is.A.OptNumber.Ok, "expected optNumber to be absent")
+}
+
+func Test_DoWithArrays(t *testing.T) {
+	out := ConfigWithArray{}
+
+	err := Do(testConfig, &out)
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err.Error())
+	}
+
+	assert_eq(t, out.Other.Array[0], 1)
+	assert_eq(t, out.Other.Array[1], 2)
+	assert_eq(t, out.Other.Array[2], 3)
+
+	assert_eq(t, out.Other.ArrayOfObjects[0].String, "object1")
+	assert_eq(t, out.Other.ArrayOfObjects[0].Int, 10)
+
+	assert_eq(t, out.Other.ArrayOfObjects[1].String, "object2")
+	assert_eq(t, out.Other.ArrayOfObjects[1].Int, 20)
 }
 
 func assert(t *testing.T, pred bool, message ...string) {
