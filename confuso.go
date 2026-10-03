@@ -39,52 +39,101 @@ func populateStruct(object reflect.Value, config map[string]any) error {
 		fieldType := object.Type().Field(i)
 		fieldValue := object.Field(i)
 
-		fieldName := getFieldName(fieldType)
+		// Unexported fields can't be set via reflection
+		if !fieldType.IsExported() {
+			continue
+		}
 
-		// Check if the value is optional
+		fieldName := getFieldName(fieldType)
 		isOpt := isOptional(fieldValue)
 
 		configValue, ok := config[fieldName]
 		if !ok {
 			if isOpt {
 				continue
-			} else {
-				return fmt.Errorf("field '%s' is missing from provided config!", fieldName)
 			}
+			return fmt.Errorf("field %q is missing from provided config", fieldName)
 		}
 
+		// Optionals are special structs, so they are handled before the generic path
 		if isOpt {
-			// Optionals are special structs, so they must be handled in advance
 			if err := setOptionalField(fieldName, fieldValue, configValue); err != nil {
 				return err
 			}
-		} else if fieldType.Type.Kind() == reflect.Struct {
-			// If the field is a struct, we expect `configValue` to be a map
-			subConfig, ok := configValue.(map[string]any)
-			if !ok {
-				return fmt.Errorf("unexpected value '%v' provided for field '%s'", configValue, fieldName)
-			}
-			// Propagate the visit to the rest of the struct
-			if err := populateStruct(fieldValue, subConfig); err != nil {
-				return err
-			}
-		} else {
-			// Otherwise, we can just try to set the value as is
-			if err := setField(fieldName, fieldValue, configValue); err != nil {
-				return err
-			}
+			continue
+		}
+
+		if err := populateValue(fieldValue, configValue); err != nil {
+			return fmt.Errorf("%q->%w", fieldName, err)
 		}
 	}
+
 	return nil
 }
 
-func getFieldName(field reflect.StructField) string {
-	name := ""
-	tag := field.Tag.Get("confuso")
-	if tag != "" {
-		name = tag
-	} else {
-		name = field.Name
+func populateSlice(object reflect.Value, config []any) error {
+	if object.Kind() != reflect.Slice {
+		return errors.New("cannot populate a non slice")
 	}
-	return name
+	if !object.CanSet() {
+		return errors.New("cannot populate a non settable slice (pass an addressable value)")
+	}
+
+	// Build a fresh slice of the right length. Elements of a slice are
+	// always addressable, so we can populate them in place.
+	result := reflect.MakeSlice(object.Type(), len(config), len(config))
+
+	for i, configItem := range config {
+		if err := populateValue(result.Index(i), configItem); err != nil {
+			return fmt.Errorf("[%d]->%w", i, err)
+		}
+	}
+
+	object.Set(result)
+	return nil
+}
+
+// populateValue fills dst (which must be settable) from item, branching on
+// the destination's type rather than the config item's type.
+func populateValue(dst reflect.Value, item any) error {
+	if item == nil {
+		return nil // leave the zero value
+	}
+
+	// Allocate through pointers so []*T and nested pointers work.
+	for dst.Kind() == reflect.Pointer {
+		if dst.IsNil() {
+			dst.Set(reflect.New(dst.Type().Elem()))
+		}
+		dst = dst.Elem()
+	}
+
+	switch dst.Kind() {
+	case reflect.Struct:
+		subConfig, ok := item.(map[string]any)
+		if !ok {
+			return fmt.Errorf("expected object for %s but got %T (%v)", dst.Type(), item, item)
+		}
+		return populateStruct(dst, subConfig)
+
+	case reflect.Slice:
+		sliceConfig, ok := item.([]any)
+		if !ok {
+			return fmt.Errorf("expected list for %s but got %T (%v)", dst.Type(), item, item)
+		}
+		return populateSlice(dst, sliceConfig)
+
+	default:
+		if err := setField(dst, item); err != nil {
+			return fmt.Errorf("setting %s: %w", dst.Type(), err)
+		}
+		return nil
+	}
+}
+
+func getFieldName(field reflect.StructField) string {
+	if tag := field.Tag.Get("confuso"); tag != "" {
+		return tag
+	}
+	return field.Name
 }

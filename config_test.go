@@ -29,3 +29,13 @@ type ConfigWithOptional struct {
 		} `confuso:"is"`
 	} `confuso:"this"`
 }
+
+type ConfigWithArray struct {
+	Other struct {
+		Array          []int `confuso:"array"`
+		ArrayOfObjects []struct {
+			String string `confuso:"string"`
+			Int    int    `confuso:"int"`
+		} `confuso:"array_of_objects"`
+	} `confuso:"other"`
+}
